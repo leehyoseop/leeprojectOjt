@@ -1,0 +1,56 @@
+su -
+(비밀번호 모르면 sudo passwd로 비밀번호 바꿔주기su - 
+
+root@instance-2:~# apt-get update
+root@instance-2:~# apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+root@instance-2:~# curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+root@instance-2:~# echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+root@instance-2:~# apt-get update && sudo apt-get install docker-ce docker-ce-cli containerd.io
+root@instance-2:~# docker --version
+
+root@instance-2:~# docker run --name oracle -d -p 1521:1521 jaspeen/oracle-xe-11g
+root@instance-2:~# docker ps -a
+
+docker exec -it 70 sqlplus
+(오라클 (70은 컨테이너 번호, docker ps -a 보고 컨테이너 앞글자 2개만 보고 적어도 돼) 접속
+(초기 아이디 비번은 system / orcale
+
+SQL> create user jin identified by 1234;
+User created.
+SQL> grant connect, resource to jin;
+Grant succeeded.
+SQL> create tablespace lee datafile 'C:\Users\Lee\Documents\ts\ts.dbf' size 500m;
+Tablespace created.
+SQL> alter user lee default tablespace lee;
+User altered.
+(이렇게 여기 디비에 다시 내 계정 추가해주고 sql dev.에서 새 접속 만들어줘서 gcp 외부 아이피 입력해주고 접속 테스트 하면
+	gcp sqlplus에서 안만들어도 됌
+
+root@instance-2:~# mkdir /jenkins
+root@instance-2:~# chown -R 1000:1000 /jenkins
+root@instance-2:~# docker run --name jenkins -d -p 8080:8080 -p 50000:50000 -v /var/run/docker.sock:/var/run/docker.sock -v /jenkins:/var/jenkins_home jenkins/jenkins:lts
+root@instance-2:~# chmod 666 /var/run/docker.sock
+
+root@instance-2:~# docker exec -it --user 0 jenkins /bin/bash
+root@d687845c09e8:/# apt-get update
+root@d687845c09e8:/# apt-get install apt-transport-https ca-certificates curl gnupg lsb-release
+root@d687845c09e8:/# curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+root@d687845c09e8:/# echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu bionic stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null root@c3a8f35ca336:/# apt-get update && apt-get install docker-ce-cli
+root@d687845c09e8:/# apt-get update && apt-get install docker-ce-cli
+root@d687845c09e8:/# docker ps -a 
+root@d687845c09e8:/# exit
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu bionic stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+http://34.125.151.119:8080/ 크롬접속 (너꺼 gcp 외부 ip)
+
+gcp에서 
+root@instance-2:~# docker logs jenkins
+
+ac5655fc9d3a44d4ac01dea21f630dda
+(초기비밀번호 가져오기 
+
+b4fdb23361d04b51835f05e0873b012e
+
+http://34.125.151.86:8080/
+크롬 접속한거에 비밀번호 붙여놓기
+그러고 설명대로 쭉
