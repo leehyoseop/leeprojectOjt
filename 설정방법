@@ -45,3 +45,65 @@ gcp에서
 root@instance-2:~# docker logs jenkins
 (초기비밀번호 가져오기 
 크롬 접속한거에 비밀번호 붙여놓기)
+
+--------------------------------------------------------------------------------------------------------------------------------
+#nginx 이미지 다운로드 ➜ ~docker pull nginx
+#다운받은 이미지 확인 ➜ ~ docker image ls
+#다운받은 nginx 이미지를 webserver라는 컨테이너 이름을 붙여 구동하기 ➜ ~ docker container run --name webserver -d -p 80:80 nginx
+이때 GCP에 올렸으면 해당 외부포트로 접근해서 확인해야한다. 
+
+#Push 하기 ➜ (로그인 한뒤에) 태그 바꿔주기 ~docker image tag [지금 이름][바꿀 이름] 
+인데 [바꿀 이름]에는 내 도커 아이디/이미지이름
+Ex)docker image tag datasolution_test:1.0 0303hslee/hsdatasolution_test:2.0
+그 다음에 docker push 0303hslee/hsdatasolution_test:2.0 이렇게 올린다.
+
+kubeadm: 클러스터를 부트스트랩하는 명령이다.
+kubelet: 클러스터의 모든 머신에서 실행되는 파드와 컨테이너 시작과 같은 작업을 수행하는 컴포넌트이다.
+kubectl: 클러스터와 통신하기 위한 커맨드 라인 유틸리티이다.
+
+#apt-get update
+#apt-get install -y apt-transport-https ca-certificates curl
+#sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+#echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+#sudo apt update
+#sudo apt install kubelet kubeadm kubectl kubernetes-cni
+#sudo apt-mark hold kubelet kubeadm kubectl
+
+➜ 쿠버네티스는 최신으로 하지 않는다.(위 방법으로 안하는게 나은듯.)
+
+# 쿠버네테스 초기화 및 정지
+kubeadm reset
+systemctl stop kubelet
+systemctl stop docker
+
+# 쿠버네티스 네트워크 설정 삭제
+ip link delete cni0
+ip link delete flannel.1
+
+# 쿠버네티스 관련 파일 삭제
+rm -rf /var/lib/cni/
+rm -rf /var/lib/kubelet/*
+rm -rf /var/lib/etcd/
+rm -rf /run/flannel
+rm -rf /etc/cni/
+rm -rf /etc/kubernetes
+rm -rf ~/.kube
+
+#쿠버네티스 관련 패키지 삭제
+sudo apt-get purge kubeadm kubectl kubelet
+sudo apt-get autoremove
+
+apt-get install kubeadm=1.20.5-00 ➜ kubelet kubectl도 해준다.
+
+sudo apt-mark hold kubelet kubeadm kubectl
+
+kubelet --version
+
+kubeadm join 10.138.0.2:6443 --token rtql3e.v4dkfgig0102ihkp \
+    --discovery-token-ca-cert-hash sha256:796a60ce8f0d042263696859acf0420a32e578eaecda62e1ae8d8df49371e2a6
+2번째 노드가 안될때는 kubeadm reset해주고 다시 하면 된다.
+
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+
+
+
